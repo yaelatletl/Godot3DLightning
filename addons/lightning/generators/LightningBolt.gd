@@ -51,12 +51,14 @@ func _cast_rays() -> void:
 #Update the lighning collision positions
 func _update_collisions() -> void:
 	for i in raycasts.size():
-		collision_positions[i] = raycasts[i].get_collision_point()
-
+		if raycasts[i].is_colliding():
+			collision_positions[i] = raycasts[i].get_collision_point()
+		else:
+			collision_positions[i] = null
 #Setup the visual lightning paths
 func _setup_lightning() -> void:
 	for i in raycasts.size():
-		var new_lightning = Lightning3DBranched.new(7, 1.6, 3, 0.4, 0.6)
+		var new_lightning = Lightning3DBranched.new(7, 1.6, 3, 0.4, 0.6, Lightning3DBranched.UPDATE_MODE.ON_PHYSICS)
 		lightning_paths.append(new_lightning)
 		new_lightning.visible = false
 		add_child(new_lightning)
@@ -64,12 +66,12 @@ func _setup_lightning() -> void:
 #Update the lightning paths
 func _update_lightning() -> void:
 	for i in raycasts.size():
-		if collision_positions[i] != Vector3.ZERO or collision_positions[i] != null:
+		if collision_positions[i] != null:
 			lightning_paths[i].visible = true
 			lightning_paths[i].set_end_from_global(collision_positions[i])
 		else:
 			lightning_paths[i].visible = false
-		lightning_paths[i].visible = true
+		#lightning_paths[i].visible = true
 		
 
 #Setup everything when Node is ready
