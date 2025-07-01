@@ -7,7 +7,7 @@ class_name Lightning3DSimple
 @export_enum("Plane", "Curved") var lightning_mode = "Plane"
 @export var bake : bool = false: set = set_bake
 @export var lightning_material : Material = preload("res://addons/lightning/baked/Lightning3D.tres")
-@export var meshs : Array
+@export var meshes : Array
 @export var width : float = 0.5: set = set_width
 
 func _ready():
@@ -15,20 +15,20 @@ func _ready():
 		curve = Curve3D.new()
 	curve_changed.connect(_on_path_curve_changed)
 		
-	creates_meshs()
+	creates_meshes()
 
 
 func set_bake(_bake):
-	""" Used to force meshs creations """
-	creates_meshs()
+	""" Used to force meshes creations """
+	creates_meshes()
 	
 func set_width(new_width):
 	width = new_width
-	creates_meshs()
+	creates_meshes()
 	
-func creates_meshs():
-	#Clean old meshs
-	clean_meshs()
+func creates_meshes():
+	#Clean old meshes
+	clean_meshes()
 	
 	if not is_inside_tree():
 		return
@@ -52,12 +52,12 @@ func creates_meshs():
 				
 	notify_property_list_changed()
 		
-func clean_meshs():
-	for mesh in meshs:
+func clean_meshes():
+	for mesh in meshes:
 		RenderingServer.mesh_clear(mesh.get_rid())
 		mesh = null
 
-	meshs = []
+	meshes = []
 	
 func create_plane_mesh(origin : Vector3, extremity: Vector3):
 	var mesh_plane = PlaneMesh.new()
@@ -83,7 +83,7 @@ func create_plane_mesh(origin : Vector3, extremity: Vector3):
 	# Remember, keep the reference.
 
 	var mesh = mesh_plane
-	meshs.append(mesh)
+	meshes.append(mesh)
 	
 	RenderingServer.instance_set_base(instance, mesh)
 	RenderingServer.mesh_surface_set_material(mesh, 0, lightning_material.get_rid())
@@ -96,19 +96,19 @@ func create_plane_mesh(origin : Vector3, extremity: Vector3):
 
 
 func _on_path_curve_changed():
-	creates_meshs()
+	creates_meshes()
 
 
 func _on_Lightning3D_visibility_changed():
 	if visible:
-		creates_meshs()
+		creates_meshes()
 	else:
-		clean_meshs()
+		clean_meshes()
 
 
 func _on_Lightning3D_tree_exiting():
-	clean_meshs()
+	clean_meshes()
 
 
 func _on_Lightning3D_tree_entered():
-	creates_meshs()
+	creates_meshes()
