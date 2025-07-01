@@ -1,5 +1,4 @@
-@tool
-#Branched lightning generator, creates several simple lightnings 
+#Branched lightning generator, creates several simple lightning_curves 
 extends Node3D
 class_name Lightning3DBranched
 
@@ -31,7 +30,7 @@ enum UPDATE_MODE{
 
 @export var maximum_update_delta : float = 1.0 #The maximum delta cumulative before update # (float, 0.01, 100.0 )
 
-var lightnings : Dictionary = {}
+var lightning_curves : Dictionary = {}
 var lightning_nodes : Array = []
 var increments : float = 0.0
 var timer : SceneTreeTimer = null
@@ -52,27 +51,56 @@ func _init(init_lightning_subdivisions = 10,
 	self.update_mode = init_update_mode
 
 
+func _timer_update() -> void:
+	timer = get_tree().create_timer(update_timeout)
+	timer.timeout.connect(_timer_update)
+	_update()	
+	
+
+func _ready():
+	if update_mode == UPDATE_MODE.ON_TIMEOUT:
+		_timer_update()
+	_setup_lightning()
+
+
+func _process(delta):
+	if update_mode == UPDATE_MODE.ON_PROCESS:
+		cumulative_delta += delta
+		if cumulative_delta > maximum_update_delta:
+			cumulative_delta = 0.0
+			_update()
+	_update_lightning()
+
+
+func _physics_process(delta):
+	if update_mode == UPDATE_MODE.ON_PHYSICS:
+		cumulative_delta += delta
+		if cumulative_delta > maximum_update_delta:
+			cumulative_delta = 0.0
+			_update()
+
+
 func _setup_lightning():
 	for _i in range(0, max_branches+1):
 		var new_lightning = Lightning3DSimple.new()
 		add_child(new_lightning)
 		lightning_nodes.append(new_lightning)
+		new_lightning.curve.get_baked_points()
 	_update_lightning()
-		#new_lightning.curve.get_baked_points()
 
 func _update_lightning():
-	for light in lightning_nodes:
-		light.visible = false
+	for lightning in lightning_nodes:
+		lightning.visible = false
 	var i = 0
 	lightning_nodes.shuffle()
-	for key in lightnings.keys():
+	for key in lightning_curves.keys():
 		if i > lightning_nodes.size():
 			break
 		var current = lightning_nodes[i]
 		current.curve.clear_points()
 		current.visible = true
-		#lightnings[key].invert()
-		for point in lightnings[key]:
+		#lightning_curves[key].invert()
+		for point in lightning_curves[key]:
 			current.curve.add_point(point)
 		i += 1
 #Create a vector3 array to store the points of the path for lightning, adding randomness to the points
@@ -113,40 +141,14 @@ func _create_branches(main_path) -> void:
 			endpoint,
 			max_branch_deviation)
 		branch_path.reverse()
-		lightnings[i] = branch_path
+		lightning_curves[i] = branch_path
 
 func _update() -> void:
 	var main_path : Array = _create_lightning_points(end, origin, max_deviation)
 	main_path.reverse()
-	lightnings.clear()
-	lightnings["main"] = main_path
+	lightning_curves.clear()
+	lightning_curves["main"] = main_path
 	_create_branches(main_path)
-
-func _timer_update() -> void:
-	timer = get_tree().create_timer(update_timeout)
-	timer.connect("timeout", Callable(self, "_timer_update"))
-	_update()	
-	
-func _ready():
-	if update_mode == UPDATE_MODE.ON_TIMEOUT:
-		_timer_update()
-	_setup_lightning()
-
-
-func _process(delta):
-	if update_mode == UPDATE_MODE.ON_PROCESS:
-		cumulative_delta += delta
-		if cumulative_delta > maximum_update_delta:
-			cumulative_delta = 0.0
-			_update()
-	_update_lightning()
-
-func _physics_process(delta):
-	if update_mode == UPDATE_MODE.ON_PHYSICS:
-		cumulative_delta += delta
-		if cumulative_delta > maximum_update_delta:
-			cumulative_delta = 0.0
-			_update()
 
 func set_origin(origin : Vector3):
 	self.origin = origin

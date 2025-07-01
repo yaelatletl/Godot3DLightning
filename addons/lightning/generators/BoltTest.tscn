@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://dfnmrowgfskqk"]
 
-[ext_resource type="Script" path="res://addons/lightning/generators/LightningBolt.gd" id="1"]
+[ext_resource type="Script" uid="uid://c1jwui0plxqg2" path="res://addons/lightning/generators/LightningBolt.gd" id="1"]
 
 [sub_resource type="BoxShape3D" id="1"]
 size = Vector3(4.60376, 0.306608, 4.37666)
@@ -41,8 +41,8 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_p2cr1"]
 _data = {
-"Default": SubResource("4"),
-"RESET": SubResource("5")
+&"Default": SubResource("4"),
+&"RESET": SubResource("5")
 }
 
 [node name="Node3D" type="Node3D"]

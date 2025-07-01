@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://h41bbuw4c71r"]
 
-[ext_resource type="Script" path="res://addons/lightning/generators/Lightning3DBranched.gd" id="1"]
+[ext_resource type="Script" uid="uid://5lvh0q2m3xox" path="res://addons/lightning/generators/Lightning3DBranched.gd" id="1"]
 
 [node name="Lightning3DBranched" type="Node3D"]
 transform = Transform3D(1, 0, 0, 0, -0.119894, -0.992787, 0, 0.992787, -0.119894, 0, 0, 0)
